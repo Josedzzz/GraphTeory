@@ -1,52 +1,58 @@
 import cv2
+import os
 import numpy as np
 import networkx as nx
-import matplotlib.pyplot as plt
 
-# Función para interpretar los resultados del preprocesamiento y extraer información útil del grafo
-def interpretar_grafo(imagen_preprocesada):
-    # Convertir la imagen preprocesada a escala de grises
-    imagen_gris = cv2.cvtColor(imagen_preprocesada, cv2.COLOR_BGR2GRAY)
+def interpretar_grafo(imagen):
+    # Convertir la imagen a escala de grises
+    gray = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
 
-    # Detección de nodos (círculos azules)
-    nodos = cv2.HoughCircles(imagen_gris, cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=50, param2=30, minRadius=5, maxRadius=30)
+    # Detección de círculos y líneas
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=200, param2=30, minRadius=15, maxRadius=45)
+    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
 
-    # Detección de aristas (líneas rojas)
-    bordes_rojos = cv2.inRange(imagen_preprocesada, np.array([0, 0, 150]), np.array([100, 100, 255]))
-    contornos, _ = cv2.findContours(bordes_rojos, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Detección de líneas utilizando la transformada de Hough probabilística
+    lines = cv2.HoughLines(edges, rho=1, theta=np.pi/180, threshold=100)
 
     # Crear un grafo vacío
-    grafo = nx.Graph()
+    G = nx.Graph()
 
-    # Agregar nodos al grafo y asignar etiquetas y posiciones
-    if nodos is not None:
-        nodos = np.round(nodos[0, :]).astype("int")
-        for i, (x, y, _) in enumerate(nodos):
-            etiqueta_nodo = f"Nodo {i+1}"
-            grafo.add_node(etiqueta_nodo, pos=(x, y))
+    # Agregar nodos al grafo
+    if circles is not None:
+        circles = np.uint16(np.around(circles))
+        for i in circles[0, :]:
+            G.add_node((i[0], i[1]))
 
     # Agregar aristas al grafo
-    for contorno in contornos:
-        if len(contorno) > 1:
-            inicio = tuple(contorno[0][0])
-            fin = tuple(contorno[-1][0])
-            grafo.add_edge(inicio, fin)
+    if lines is not None:
+        for line in lines:
+            rho, theta = line[0]
+            a = np.cos(theta)
+            b = np.sin(theta)
+            x0 = a * rho
+            y0 = b * rho
+            x1 = int(x0 + 1000 * (-b))
+            y1 = int(y0 + 1000 * (a))
+            x2 = int(x0 - 1000 * (-b))
+            y2 = int(y0 - 1000 * (a))
+            node1 = (x1, y1)
+            node2 = (x2, y2)
+            if node1 in G.nodes and node2 in G.nodes:
+                G.add_edge(node1, node2)
 
-    return grafo
-
+    return G
 
 # Ejemplo de uso
 if __name__ == "__main__":
-    imagen_preprocesada = cv2.imread("/home/joki/Documents/code/GraphsTheory/preProcessedImages/preprocesada_ej2.jpeg")  # Reemplaza esto con la imagen preprocesada
-    grafo = interpretar_grafo(imagen_preprocesada)
-
-    # Imprimir información del grafo
-    print("Número de nodos:", grafo.number_of_nodes())
-    print("Número de aristas:", grafo.number_of_edges())
-    print("Nodos:", grafo.nodes())
-    print("Aristas:", grafo.edges())
+    imagen_path = "./preProcessedImages/preprocesada_g1.png"  # Reemplaza esto con la ruta de tu imagen procesada
+    imagen_procesada = cv2.imread(imagen_path)
+    grafo = interpretar_grafo(imagen_procesada)
 
     # Visualizar el grafo
-    posiciones_nodos = nx.get_node_attributes(grafo, 'pos')
-    nx.draw(grafo, posiciones_nodos, with_labels=True, node_color='skyblue', node_size=500)
+    print("Nodos del grafo:", grafo.nodes)
+    print("Aristas del grafo:", grafo.edges)
+
+    # También puedes visualizar el grafo utilizando NetworkX
+    import matplotlib.pyplot as plt
+    nx.draw(grafo, with_labels=True)
     plt.show()

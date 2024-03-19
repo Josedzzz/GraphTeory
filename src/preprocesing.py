@@ -5,39 +5,27 @@ def preprocesar_imagen(image_path):
     # Cargar la imagen
     imagen = cv2.imread(image_path)
 
-    # Convertir la imagen a escala de grises
-    imagen_gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
+    # Convertir a escala de grises
+    gray = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
 
-    # Aplicar umbralización adaptativa para segmentar la imagen
-    _, imagen_umbralizada = cv2.threshold(imagen_gris, 100, 255, cv2.THRESH_BINARY)
+    # Detección de círculos
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=200, param2=30, minRadius=0, maxRadius=0)
 
-    # Aplicar detección de bordes utilizando el algoritmo Canny
-    imagen_bordes = cv2.Canny(imagen_umbralizada, 50, 150)
+    # Dibujar círculos detectados
+    if circles is not None:
+        circles = circles.astype(int)
+        for i in circles[0, :]:
+            cv2.circle(imagen, (i[0], i[1]), i[2], (0, 255, 0), 2)
 
-    # Dilatación de la imagen de bordes
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (5, 5))
-    imagen_bordes_dilatada = cv2.dilate(imagen_bordes, kernel, iterations=1)
+    # Detección de líneas
+    edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+    lines = cv2.HoughLinesP(edges, rho=1, theta=1 * (3.14 / 180), threshold=100, minLineLength=100, maxLineGap=10)
 
-    # Detección de líneas utilizando la transformada de Hough
-    lineas = cv2.HoughLinesP(imagen_bordes_dilatada, 1, 3.14/180, threshold=50, minLineLength=50, maxLineGap=5)  # Adjusted parameters
-
-    if lineas is not None:
-        # Dibujar las líneas encontradas (aristas)
-        for linea in lineas:
-            x1, y1, x2, y2 = linea[0]
-            cv2.line(imagen, (x1, y1), (x2, y2), (0, 0, 0), 10)  # Aumentar el grosor de la lí
-
-    # Detección de nodos (círculos) utilizando la transformada de Hough circular
-    circulos = cv2.HoughCircles(imagen_gris, cv2.HOUGH_GRADIENT, dp=1, minDist=50, param1=100, param2=30, minRadius=2, maxRadius=400)
-
-    if circulos is not None:
-        # Dibujar los círculos encontrados (nodos)
-        for circulo in circulos[0]:
-            centro = (int(circulo[0]), int(circulo[1]))
-            radio = int(circulo[2])
-
-            # Dibujar el nodo con relleno azul
-            cv2.circle(imagen, centro, radio, (255, 0, 0), -1)
+    # Dibujar líneas detectadas
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+            cv2.line(imagen, (x1, y1), (x2, y2), (0, 0, 255), 2)
 
     # Guardar la imagen preprocesada
     directorio_salida = "./preProcessedImages"
@@ -49,7 +37,7 @@ def preprocesar_imagen(image_path):
 
 # Ejemplo de uso
 if __name__ == "__main__":
-    imagen_path = "./processedImages/ej2.jpeg"  # Reemplaza esto con la ruta de tu imagen de grafo
+    imagen_path = "./processedImages/g1.png"  # Reemplaza esto con la ruta de tu imagen de grafo
     imagen_preprocesada = preprocesar_imagen(imagen_path)
 
     # Redimensionar la ventana de visualización según el tamaño de la imagen
@@ -59,3 +47,4 @@ if __name__ == "__main__":
     cv2.imshow("Imagen preprocesada", imagen_preprocesada)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+ 
