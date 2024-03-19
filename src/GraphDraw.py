@@ -78,6 +78,9 @@ class GraphDrawerApp:
             self.canvas.itemconfig(node, fill="blue")
         self.highlighted_nodes = []
 
+    
+    #FUNCIONES CON LAS QUE INTERACTUA EL USUARIO --------------------------------------------------------------------------------
+
     def show_graph_info(self):
         messagebox.showinfo("Información del Grafo", f"Número de nodos: {len(self.nodes)}\nNúmero de aristas: {len(self.edges)}")
 
@@ -90,6 +93,41 @@ class GraphDrawerApp:
         shortest_path = self.shortest_path(start_node, end_node)
         messagebox.showinfo("Camino más corto", f"El camino más corto entre los nodos {start_node} y {end_node} es: {shortest_path}")
 
+        # Función para verificar si el grafo tiene un camino de Euler
+    def eulerian_path(self):
+        odd_degree_count = sum(deg % 2 == 1 for _, deg in self.graph.degree())
+        if odd_degree_count != 0 and odd_degree_count != 2:
+            return False, None  # No hay camino de Euler
+        
+        temp_graph = self.graph.copy()
+        current_node = next(iter(temp_graph.nodes))
+        euler_path = []
+        while temp_graph.edges:
+            for neighbor in temp_graph.neighbors(current_node):
+                temp_graph.remove_edge(current_node, neighbor)
+                if nx.is_connected(temp_graph.subgraph(nx.node_connected_component(temp_graph, current_node))):
+                    euler_path.append((current_node, neighbor))
+                    current_node = neighbor
+                    break
+                else:
+                    temp_graph.add_edge(current_node, neighbor)
+            else:
+                break
+        
+        if len(euler_path) == self.graph.number_of_edges():
+            return True, euler_path
+        else:
+            return False, None  # No hay camino de Euler
+
+    # Función para mostrar el camino de Euler si existe
+    def show_eulerian_path(self):
+        is_eulerian, euler_path = self.eulerian_path()
+        if is_eulerian:
+            path_str = ' -> '.join(f"{edge[0]}-{edge[1]}" for edge in euler_path)
+            messagebox.showinfo("Camino de Euler", f"El grafo tiene un camino de Euler:\n{path_str}")
+        else:
+            messagebox.showinfo("Camino de Euler", "El grafo no tiene un camino de Euler.")
+
 if __name__ == "__main__":
     root = tk.Tk()
     app = GraphDrawerApp(root)
@@ -97,4 +135,6 @@ if __name__ == "__main__":
     button_info.pack()
     button_shortest_path = tk.Button(root, text="Camino más corto", command=app.show_shortest_path)
     button_shortest_path.pack()
+    button_eulerian_path = tk.Button(root, text="Camino de Euler", command=app.show_eulerian_path)
+    button_eulerian_path.pack()
     root.mainloop()
