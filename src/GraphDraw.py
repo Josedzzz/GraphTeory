@@ -20,10 +20,13 @@ class GraphDrawerApp:
         # Pedir al usuario el nombre del nodo
         node_name = simpledialog.askstring("Nombre del nodo", "Ingrese el nombre del nodo:")
         if node_name is not None:
-            x, y = event.x, event.y
-            node = self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="blue")
-            self.nodes[node_name] = (node, x, y)  # Guardar el nodo con su nombre y coordenadas
-            self.graph.add_node(node_name)
+            if node_name not in self.nodes:  # Verificar que el nombre no se repita
+                x, y = event.x, event.y
+                node = self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="blue")
+                self.nodes[node_name] = (node, x, y)  # Guardar el nodo con su nombre y coordenadas
+                self.graph.add_node(node_name)
+            else:
+                messagebox.showwarning("Nombre duplicado", f"El nombre '{node_name}' ya está en uso. Por favor, ingrese un nombre diferente.")
 
     def create_edge(self, event):
         # Esta función se ejecuta cuando se hace clic derecho
