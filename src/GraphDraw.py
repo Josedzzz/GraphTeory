@@ -25,6 +25,8 @@ class GraphDrawerApp:
                 node = self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="blue")
                 self.nodes[node_name] = (node, x, y)  # Guardar el nodo con su nombre y coordenadas
                 self.graph.add_node(node_name)
+                # Mostrar el nombre del nodo junto al nodo
+                self.canvas.create_text(x, y, text=node_name, fill="black", anchor="center")
             else:
                 messagebox.showwarning("Nombre duplicado", f"El nombre '{node_name}' ya está en uso. Por favor, ingrese un nombre diferente.")
 
