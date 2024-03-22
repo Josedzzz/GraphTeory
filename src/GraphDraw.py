@@ -16,13 +16,17 @@ class GraphDrawerApp:
         self.highlighted_nodes = []
         self.graph = nx.Graph()
 
+        # Botón para limpiar el lienzo
+        self.clear_button = tk.Button(root, text="Limpiar", command=self.clear_canvas)
+        self.clear_button.pack()
+
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
         node_name = simpledialog.askstring("Nombre del nodo", "Ingrese el nombre del nodo:")
         if node_name is not None:
             if node_name not in self.nodes:  # Verificar que el nombre no se repita
                 x, y = event.x, event.y
-                node = self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="blue")
+                node = self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="#14D0E8")
                 self.nodes[node_name] = (node, x, y)  # Guardar el nodo con su nombre y coordenadas
                 self.graph.add_node(node_name)
                 # Mostrar el nombre del nodo junto al nodo
@@ -69,16 +73,22 @@ class GraphDrawerApp:
         else:
             if self.selected_node is not None:
                 # Restaurar el color del nodo seleccionado a azul original
-                self.canvas.itemconfig(self.nodes[self.selected_node][0], fill="blue")
+                self.canvas.itemconfig(self.nodes[self.selected_node][0], fill="#14D0E8")
                 self.selected_node = None
 
     def restore_highlighted_nodes(self):
         # Restaurar el color de los nodos destacados a azul original
         for node, _, _ in self.nodes.values():
-            self.canvas.itemconfig(node, fill="blue")
+            self.canvas.itemconfig(node, fill="#14D0E8")
         self.highlighted_nodes = []
 
-    
+    def clear_canvas(self):
+        # Limpia el lienzo
+        self.canvas.delete("all")
+        self.nodes = {}
+        self.edges = []
+        self.graph.clear()
+
     #FUNCIONES CON LAS QUE INTERACTUA EL USUARIO --------------------------------------------------------------------------------
 
     def show_graph_info(self):
@@ -93,12 +103,12 @@ class GraphDrawerApp:
         shortest_path = self.shortest_path(start_node, end_node)
         messagebox.showinfo("Camino más corto", f"El camino más corto entre los nodos {start_node} y {end_node} es: {shortest_path}")
 
-        # Función para verificar si el grafo tiene un camino de Euler
+    # Función para verificar si el grafo tiene un camino de Euler
     def eulerian_path(self):
         odd_degree_count = sum(deg % 2 == 1 for _, deg in self.graph.degree())
         if odd_degree_count != 0 and odd_degree_count != 2:
             return False, None  # No hay camino de Euler
-        
+
         temp_graph = self.graph.copy()
         current_node = next(iter(temp_graph.nodes))
         euler_path = []
@@ -113,11 +123,12 @@ class GraphDrawerApp:
                     temp_graph.add_edge(current_node, neighbor)
             else:
                 break
-        
+
         if len(euler_path) == self.graph.number_of_edges():
             return True, euler_path
         else:
             return False, None  # No hay camino de Euler
+
 
     # Función para mostrar el camino de Euler si existe
     def show_eulerian_path(self):
