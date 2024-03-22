@@ -105,23 +105,22 @@ class GraphDrawerApp:
 
     # Función para verificar si el grafo tiene un camino de Euler
     def eulerian_path(self):
-        odd_degree_count = sum(deg % 2 == 1 for _, deg in self.graph.degree())
-        if odd_degree_count != 0 and odd_degree_count != 2:
+        odd_degree_nodes = [node for node, deg in self.graph.degree() if deg % 2 == 1]
+        if len(odd_degree_nodes) != 0 and len(odd_degree_nodes) != 2:
             return False, None  # No hay camino de Euler
 
         temp_graph = self.graph.copy()
-        current_node = next(iter(temp_graph.nodes))
         euler_path = []
+        current_node = odd_degree_nodes[0] if odd_degree_nodes else next(iter(temp_graph.nodes))
+
         while temp_graph.edges:
-            for neighbor in temp_graph.neighbors(current_node):
+            for neighbor in nx.neighbors(temp_graph, current_node):
                 temp_graph.remove_edge(current_node, neighbor)
-                if nx.is_connected(temp_graph.subgraph(nx.node_connected_component(temp_graph, current_node))):
-                    euler_path.append((current_node, neighbor))
-                    current_node = neighbor
-                    break
-                else:
+                if not nx.is_connected(temp_graph.subgraph(nx.node_connected_component(temp_graph, current_node))):
                     temp_graph.add_edge(current_node, neighbor)
-            else:
+                    continue
+                euler_path.append((current_node, neighbor))
+                current_node = neighbor
                 break
 
         if len(euler_path) == self.graph.number_of_edges():
@@ -135,9 +134,9 @@ class GraphDrawerApp:
         is_eulerian, euler_path = self.eulerian_path()
         if is_eulerian:
             path_str = ' -> '.join(f"{edge[0]}-{edge[1]}" for edge in euler_path)
-            messagebox.showinfo("Camino de Euler", f"El grafo tiene un camino de Euler:\n{path_str}")
+            messagebox.showinfo("Ciclo de Euler", f"El grafo tiene un ciclo de Euler:\n{path_str}")
         else:
-            messagebox.showinfo("Camino de Euler", "El grafo no tiene un camino de Euler.")
+            messagebox.showinfo("Ciclo de Euler", "El grafo no tiene un ciclo de Euler.")
 
 if __name__ == "__main__":
     root = tk.Tk()
