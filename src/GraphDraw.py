@@ -5,7 +5,7 @@ import networkx as nx
 class GraphDrawerApp:
     def __init__(self, root):
         self.root = root
-        self.canvas = tk.Canvas(root, width=800, height=600, bg="white")
+        self.canvas = tk.Canvas(root, width=800, height=500, bg="white")
         self.canvas.pack(expand=True, fill="both")
         self.canvas.bind("<Button-1>", self.create_node)
         self.canvas.bind("<Button-3>", self.create_edge)  # Botón derecho del mouse para crear aristas
@@ -134,9 +134,9 @@ class GraphDrawerApp:
         is_eulerian, euler_path = self.eulerian_path()
         if is_eulerian:
             path_str = ' -> '.join(f"{edge[0]}-{edge[1]}" for edge in euler_path)
-            messagebox.showinfo("Ciclo de Euler", f"El grafo tiene un ciclo de Euler:\n{path_str}")
+            messagebox.showinfo("Camino de Euler", f"El grafo tiene un camino de Euler:\n{path_str}")
         else:
-            messagebox.showinfo("Ciclo de Euler", "El grafo no tiene un ciclo de Euler.")
+            messagebox.showinfo("Camino de Euler", "El grafo no tiene un camino de Euler.")
 
 if __name__ == "__main__":
     root = tk.Tk()
