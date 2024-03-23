@@ -91,6 +91,13 @@ class GraphDrawerApp:
     def show_graph_info(self):
         messagebox.showinfo("Información del Grafo", f"Número de nodos: {len(self.nodes)}\nNúmero de aristas: {len(self.edges)}")
 
+    def show_graph_nodes(self):
+        if self.nodes:
+            node_list = ", ".join(self.nodes.keys())
+            messagebox.showinfo("Nodos del Grafo", f"V(G) = {{{node_list}}}")
+        else:
+            messagebox.showinfo("Nodos del Grafo", "El grafo no tiene nodos.")
+
     def shortest_path(self, start_node, end_node):
         return nx.shortest_path(self.graph, start_node, end_node)
 
@@ -176,6 +183,8 @@ if __name__ == "__main__":
     app = GraphDrawerApp(root)
     button_info = tk.Button(root, text="Mostrar Información del Grafo", command=app.show_graph_info)
     button_info.pack()
+    button_nodes = tk.Button(root, text="Mostrar Nodos", command=app.show_graph_nodes)
+    button_nodes.pack()
     button_shortest_path = tk.Button(root, text="Camino más corto", command=app.show_shortest_path)
     button_shortest_path.pack()
     button_eulerian_path = tk.Button(root, text="Camino de Euler", command=app.show_eulerian_path)
