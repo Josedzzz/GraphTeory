@@ -19,6 +19,9 @@ class GraphDrawerApp:
         # Botón para limpiar el lienzo
         self.clear_button = tk.Button(root, text="Limpiar", command=self.clear_canvas)
         self.clear_button.pack()
+        # Boton para eliminar un nodo
+        self.delete_button = tk.Button(root, text="Eliminar Nodo", command=self.delete_selected_node)
+        self.delete_button.pack()
 
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
@@ -82,12 +85,6 @@ class GraphDrawerApp:
             self.canvas.itemconfig(node, fill="#14D0E8")
         self.highlighted_nodes = []
 
-    def clear_canvas(self):
-        # Limpia el lienzo
-        self.canvas.delete("all")
-        self.nodes = {}
-        self.edges = []
-        self.graph.clear()
 
     #FUNCIONES CON LAS QUE INTERACTUA EL USUARIO --------------------------------------------------------------------------------
 
@@ -137,6 +134,42 @@ class GraphDrawerApp:
             messagebox.showinfo("Camino de Euler", f"El grafo tiene un camino de Euler:\n{path_str}")
         else:
             messagebox.showinfo("Camino de Euler", "El grafo no tiene un camino de Euler.")
+
+    # Funcion para limpiar el lienzo
+    def clear_canvas(self):
+        # Limpia el lienzo
+        self.canvas.delete("all")
+        self.nodes = {}
+        self.edges = []
+        self.graph.clear()
+
+    # Funcion para borrar un nodo seleccionado
+    def delete_selected_node(self):
+        if self.selected_node is not None:
+            # Eliminar el nodo seleccionado y sus aristas
+            self.canvas.delete(self.nodes[self.selected_node][0])  # Eliminar la representación visual del nodo
+            del self.nodes[self.selected_node]  # Eliminar el nodo del diccionario de nodos
+            self.graph.remove_node(self.selected_node)  # Eliminar el nodo del grafo
+            self.edges = [(n1, n2) for n1, n2 in self.edges if n1 != self.selected_node and n2 != self.selected_node]  # Eliminar las aristas conectadas al nodo seleccionado
+            self.selected_node = None
+            # Actualizar el lienzo
+            self.update_canvas()
+
+
+    # Actualiza el lienzo
+    def update_canvas(self):
+        # Limpiar el lienzo
+        self.canvas.delete("all")
+        # Dibujar nodos
+        for node_name, (node, x, y) in self.nodes.items():
+            self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="#14D0E8")
+            self.canvas.create_text(x, y, text=node_name, fill="black", anchor="center")
+        # Dibujar aristas
+        for edge in self.edges:
+            node1, node2 = edge
+            x1, y1 = self.nodes[node1][1], self.nodes[node1][2]
+            x2, y2 = self.nodes[node2][1], self.nodes[node2][2]
+            self.canvas.create_line(x1, y1, x2, y2, fill="black")
 
 if __name__ == "__main__":
     root = tk.Tk()
