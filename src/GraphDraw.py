@@ -16,13 +16,6 @@ class GraphDrawerApp:
         self.highlighted_nodes = []
         self.graph = nx.Graph()
 
-        # Botón para limpiar el lienzo
-        self.clear_button = tk.Button(root, text="Limpiar", command=self.clear_canvas)
-        self.clear_button.pack()
-        # Boton para eliminar un nodo
-        self.delete_button = tk.Button(root, text="Eliminar Nodo", command=self.delete_selected_node)
-        self.delete_button.pack()
-
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
         node_name = simpledialog.askstring("Nombre del nodo", "Ingrese el nombre del nodo:")
@@ -91,12 +84,22 @@ class GraphDrawerApp:
     def show_graph_info(self):
         messagebox.showinfo("Información del Grafo", f"Número de nodos: {len(self.nodes)}\nNúmero de aristas: {len(self.edges)}")
 
+    # Muestra los nodos del grafo denotando correctamnete
     def show_graph_nodes(self):
         if self.nodes:
             node_list = ", ".join(self.nodes.keys())
             messagebox.showinfo("Nodos del Grafo", f"V(G) = {{{node_list}}}")
         else:
             messagebox.showinfo("Nodos del Grafo", "El grafo no tiene nodos.")
+
+    # Muestra las aristas del grafo denotando correctamente
+    def show_graph_edges(self):
+        if self.edges:
+            edge_list = ", ".join([f"({edge[0]}, {edge[1]})" for edge in self.edges])
+            messagebox.showinfo("Aristas del Grafo", f"E(G) = {{{edge_list}}}")
+        else:
+            messagebox.showinfo("Aristas del Grafo", "El grafo no tiene aristas.")
+
 
     def shortest_path(self, start_node, end_node):
         return nx.shortest_path(self.graph, start_node, end_node)
@@ -181,12 +184,33 @@ class GraphDrawerApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = GraphDrawerApp(root)
-    button_info = tk.Button(root, text="Mostrar Información del Grafo", command=app.show_graph_info)
-    button_info.pack()
-    button_nodes = tk.Button(root, text="Mostrar Nodos", command=app.show_graph_nodes)
-    button_nodes.pack()
-    button_shortest_path = tk.Button(root, text="Camino más corto", command=app.show_shortest_path)
-    button_shortest_path.pack()
-    button_eulerian_path = tk.Button(root, text="Camino de Euler", command=app.show_eulerian_path)
-    button_eulerian_path.pack()
+    root.attributes('-zoomed', True)
+
+    button_frame = tk.Frame(root)  # Crear un Frame para los botones
+    button_frame.pack(side=tk.BOTTOM, fill=tk.X)  # Colocar el Frame en la parte inferior y que ocupe todo el ancho
+    
+    button_info = tk.Button(button_frame, text="Mostrar Información del Grafo", command=app.show_graph_info)
+    button_info.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    button_nodes = tk.Button(button_frame, text="Mostrar Nodos", command=app.show_graph_nodes)
+    button_nodes.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    button_edges = tk.Button(button_frame, text="Mostrar Aristas", command=app.show_graph_edges)
+    button_edges.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    button_shortest_path = tk.Button(button_frame, text="Camino más corto", command=app.show_shortest_path)
+    button_shortest_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    button_eulerian_path = tk.Button(button_frame, text="Camino de Euler", command=app.show_eulerian_path)
+    button_eulerian_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    # Botón para limpiar el lienzo
+    clear_button = tk.Button(button_frame, text="Limpiar", command=app.clear_canvas)
+    clear_button.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la derecha con un poco de espacio
+    
+    # Botón para eliminar un nodo
+    delete_button = tk.Button(button_frame, text="Eliminar Nodo", command=app.delete_selected_node)
+    delete_button.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la derecha con un poco de espacio
+    
     root.mainloop()
+    
