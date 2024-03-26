@@ -164,7 +164,8 @@ class GraphDrawerApp:
             self.selected_node = None
             # Actualizar el lienzo
             self.update_canvas()
-
+        else:
+            messagebox.showwarning("Seleccione un nodo","Para eliminar un nodo asegurese de seleccionarlo")
 
     # Actualiza el lienzo
     def update_canvas(self):
