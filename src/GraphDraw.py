@@ -15,6 +15,7 @@ class GraphDrawerApp:
         self.selected_node = None
         self.highlighted_nodes = []
         self.graph = nx.Graph()
+        self.showing_shortest_path = False
 
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
@@ -102,13 +103,23 @@ class GraphDrawerApp:
 
 
     def shortest_path(self, start_node, end_node):
-        return nx.shortest_path(self.graph, start_node, end_node)
+        shortest_path_nodes = nx.shortest_path(self.graph, start_node, end_node)
+        shortest_path_edges = [(shortest_path_nodes[i], shortest_path_nodes[i+1]) for i in range(len(shortest_path_nodes)-1)]
+        return shortest_path_edges
+
 
     def show_shortest_path(self):
         start_node = simpledialog.askstring("Nodo de inicio", "Ingrese el nombre del nodo de inicio:")
         end_node = simpledialog.askstring("Nodo de fin", "Ingrese el nombre del nodo de fin:")
-        shortest_path = self.shortest_path(start_node, end_node)
+        self.shortest_path_edges = self.shortest_path(start_node, end_node)
+        self.showing_shortest_path = True
+        self.update_canvas()  # Actualiza el lienzo para mostrar el camino más corto
+        shortest_path = ' -> '.join(f"({edge[0]}, {edge[1]})" for edge in self.shortest_path_edges)
         messagebox.showinfo("Camino más corto", f"El camino más corto entre los nodos {start_node} y {end_node} es: {shortest_path}")
+        self.showing_shortest_path = False
+        self.update_canvas()  # Restaurar el lienzo a su estado original
+
+
 
     # Función para verificar si el grafo tiene un camino de Euler
     def eulerian_path(self):
@@ -180,7 +191,15 @@ class GraphDrawerApp:
             node1, node2 = edge
             x1, y1 = self.nodes[node1][1], self.nodes[node1][2]
             x2, y2 = self.nodes[node2][1], self.nodes[node2][2]
-            self.canvas.create_line(x1, y1, x2, y2, fill="black")
+            if self.showing_shortest_path:
+                if (node1, node2) in self.shortest_path_edges or (node2, node1) in self.shortest_path_edges:
+                    self.canvas.create_line(x1, y1, x2, y2, fill="red", width=2)  # Cambia el color de la arista si está en el camino más corto
+                else:
+                    self.canvas.create_line(x1, y1, x2, y2, fill="black")
+            else:
+                self.canvas.create_line(x1, y1, x2, y2, fill="black")
+
+
 
 if __name__ == "__main__":
     root = tk.Tk()
