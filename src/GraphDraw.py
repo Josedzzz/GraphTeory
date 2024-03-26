@@ -147,14 +147,21 @@ class GraphDrawerApp:
             return False, None  # No hay camino de Euler
 
 
+
     # Función para mostrar el camino de Euler si existe
     def show_eulerian_path(self):
-        is_eulerian, euler_path = self.eulerian_path()
+        is_eulerian, self.eulerian_path_edges = self.eulerian_path()
         if is_eulerian:
-            path_str = ' -> '.join(f"{edge[0]}-{edge[1]}" for edge in euler_path)
+            self.showing_eulerian_path = True
+            self.update_canvas()  # Actualiza el lienzo para mostrar el camino euleriano
+            path_str = ' -> '.join(f"({edge[0]}, {edge[1]})" for edge in self.eulerian_path_edges)
             messagebox.showinfo("Camino de Euler", f"El grafo tiene un camino de Euler:\n{path_str}")
+            self.showing_eulerian_path = False
+            self.update_canvas()  # Restaurar el lienzo a su estado original
         else:
             messagebox.showinfo("Camino de Euler", "El grafo no tiene un camino de Euler.")
+
+
 
     # Funcion para limpiar el lienzo
     def clear_canvas(self):
@@ -196,8 +203,14 @@ class GraphDrawerApp:
                     self.canvas.create_line(x1, y1, x2, y2, fill="red", width=2)  # Cambia el color de la arista si está en el camino más corto
                 else:
                     self.canvas.create_line(x1, y1, x2, y2, fill="black")
+            elif self.showing_eulerian_path:
+                if (node1, node2) in self.eulerian_path_edges or (node2, node1) in self.eulerian_path_edges:
+                    self.canvas.create_line(x1, y1, x2, y2, fill="yellow", width=2)  # Cambia el color de la arista si está en el camino euleriano
+                else:
+                    self.canvas.create_line(x1, y1, x2, y2, fill="black")
             else:
                 self.canvas.create_line(x1, y1, x2, y2, fill="black")
+
 
 
 
