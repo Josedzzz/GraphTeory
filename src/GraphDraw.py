@@ -100,6 +100,19 @@ class GraphDrawerApp:
         else:
             messagebox.showinfo("Aristas del Grafo", "El grafo no tiene aristas.")
 
+    def show_neighbors(self):
+        # Pedir al usuario el nombre del vértice
+        vertex_name = simpledialog.askstring("Vértice", "Ingrese el nombre del vértice para ver sus vecinos:")
+        if vertex_name is not None:
+            if vertex_name in self.nodes:
+                neighbors = list(self.graph.neighbors(vertex_name))
+                if neighbors:
+                    messagebox.showinfo("Vecinos", f"Los vecinos de {vertex_name} son: {', '.join(neighbors)}")
+                else:
+                    messagebox.showinfo("Vecinos", f"{vertex_name} no tiene vecinos.")
+            else:
+                messagebox.showwarning("Vértice no encontrado", f"No se encontró el vértice {vertex_name} en el grafo.")    
+
 
     def shortest_path(self, start_node, end_node):
         return nx.shortest_path(self.graph, start_node, end_node)
@@ -203,6 +216,9 @@ if __name__ == "__main__":
     
     button_eulerian_path = tk.Button(button_frame, text="Camino de Euler", command=app.show_eulerian_path)
     button_eulerian_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+
+    button_show_neighbors = tk.Button(button_frame, text="Mostrar Vecinos", command=app.show_neighbors)
+    button_show_neighbors.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
     # Botón para limpiar el lienzo
     clear_button = tk.Button(button_frame, text="Limpiar", command=app.clear_canvas)
