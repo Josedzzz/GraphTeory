@@ -81,6 +81,7 @@ class GraphDrawerApp:
 
     #FUNCIONES CON LAS QUE INTERACTUA EL USUARIO --------------------------------------------------------------------------------
 
+    # Muestra informacion basica del grafo
     def show_graph_info(self):
         messagebox.showinfo("Información del Grafo", f"Número de nodos: {len(self.nodes)}\nNúmero de aristas: {len(self.edges)}")
 
@@ -100,18 +101,33 @@ class GraphDrawerApp:
         else:
             messagebox.showinfo("Aristas del Grafo", "El grafo no tiene aristas.")
 
-    def show_neighbors(self):
-        # Pedir al usuario el nombre del vértice
-        vertex_name = simpledialog.askstring("Vértice", "Ingrese el nombre del vértice para ver sus vecinos:")
-        if vertex_name is not None:
-            if vertex_name in self.nodes:
-                neighbors = list(self.graph.neighbors(vertex_name))
+
+    # Muestra los vecinos de un nodo        
+    def show_node_neighbors(self):
+        # Pedir al usuario el nombre del nodo
+        node_name = simpledialog.askstring("Vecinos del Nodo", "Ingrese el nombre del nodo para ver sus vecinos:")
+        if node_name is not None:
+            if node_name in self.nodes:
+                neighbors = list(self.graph.neighbors(node_name))
                 if neighbors:
-                    messagebox.showinfo("Vecinos", f"Los vecinos de {vertex_name} son: {', '.join(neighbors)}")
+                    neighbors_str = ", ".join(neighbors)
+                    messagebox.showinfo("Vecinos", f"n({node_name}) = {{{neighbors_str}}}")
                 else:
-                    messagebox.showinfo("Vecinos", f"{vertex_name} no tiene vecinos.")
+                    messagebox.showinfo("Vecinos", f"{node_name} no tiene vecinos.")
             else:
-                messagebox.showwarning("Vértice no encontrado", f"No se encontró el vértice {vertex_name} en el grafo.")    
+                messagebox.showwarning("Nodo no encontrado", f"No se encontró el nodo {node_name} en el grafo.")
+
+
+    # Muestra el grado de un nodo
+    def show_node_degree(self):
+        # Pedir al usuario el nombre del nodo
+        node_name = simpledialog.askstring("Grado del Nodo", "Ingrese el nombre del nodo para ver su grado:")
+        if node_name is not None:
+            if node_name in self.nodes:
+                degree = self.graph.degree[node_name]
+                messagebox.showinfo("Grado del Nodo", f"d({node_name}) = {degree}")
+            else:
+                messagebox.showwarning("Nodo no encontrado", f"No se encontró el nodo {node_name} en el grafo.")
 
 
     def shortest_path(self, start_node, end_node):
@@ -202,23 +218,26 @@ if __name__ == "__main__":
     button_frame = tk.Frame(root)  # Crear un Frame para los botones
     button_frame.pack(side=tk.BOTTOM, fill=tk.X)  # Colocar el Frame en la parte inferior y que ocupe todo el ancho
     
-    button_info = tk.Button(button_frame, text="Mostrar Información del Grafo", command=app.show_graph_info)
+    button_info = tk.Button(button_frame, text="Información del Grafo", command=app.show_graph_info)
     button_info.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
-    button_nodes = tk.Button(button_frame, text="Mostrar Nodos", command=app.show_graph_nodes)
+    button_nodes = tk.Button(button_frame, text="Nodos", command=app.show_graph_nodes)
     button_nodes.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
-    button_edges = tk.Button(button_frame, text="Mostrar Aristas", command=app.show_graph_edges)
+    button_edges = tk.Button(button_frame, text="Aristas", command=app.show_graph_edges)
     button_edges.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+
+    button_show_neighbors = tk.Button(button_frame, text="Vecinos", command=app.show_node_neighbors)
+    button_show_neighbors.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+
+    button_show_degree = tk.Button(button_frame, text="Grado Nodo", command=app.show_node_degree)
+    button_show_degree.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
     button_shortest_path = tk.Button(button_frame, text="Camino más corto", command=app.show_shortest_path)
     button_shortest_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
     button_eulerian_path = tk.Button(button_frame, text="Camino de Euler", command=app.show_eulerian_path)
     button_eulerian_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
-
-    button_show_neighbors = tk.Button(button_frame, text="Mostrar Vecinos", command=app.show_neighbors)
-    button_show_neighbors.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
     # Botón para limpiar el lienzo
     clear_button = tk.Button(button_frame, text="Limpiar", command=app.clear_canvas)
