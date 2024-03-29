@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 import networkx as nx
 import numpy as np
+import pandas as pd
 
 class GraphDrawerApp:
     def __init__(self, root):
@@ -180,6 +181,49 @@ class GraphDrawerApp:
             messagebox.showwarning("Grafo Vacío", "No hay nodos en el grafo. Cree nodos antes de calcular la matriz de adyacencia.")
 
 
+    def calculate_incidence_matrix(self):
+        # Crear una lista de nodos y una lista de aristas
+        node_list = list(self.nodes.keys())
+        edge_list = self.edges
+
+        # Asignar nombres personalizados a las aristas
+        edge_names = [f"{n1}-{n2}" for n1, n2 in edge_list]
+
+        # Inicializar la matriz de incidencia con ceros
+        incidence_matrix = np.zeros((len(node_list), len(edge_list)), dtype=int)
+
+        # Llenar la matriz de incidencia con los valores correctos
+        for i, node in enumerate(node_list):
+            for j, (n1, n2) in enumerate(edge_list):
+                if node in (n1, n2):
+                    incidence_matrix[i, j] = 1
+
+        return incidence_matrix, node_list, edge_names
+    
+
+    def show_incidence_matrix(self):
+        incidence_matrix, node_list, edge_names = self.calculate_incidence_matrix()
+
+        # Calculamos el ancho máximo de los nombres de las aristas
+        max_edge_name_length = max(len(edge_name) for edge_name in edge_names)
+
+        # Creamos una cadena para las columnas de la matriz
+        column_header = "Node".ljust(10)  # Ancho fijo para el nombre del nodo
+        for edge_name in edge_names:
+            column_header += edge_name.ljust(max_edge_name_length + 5)  # Ancho máximo + 5 espacios de separación
+        column_header += "\n"  # Nueva línea después de los nombres de las aristas
+
+        # Creamos la cadena para el contenido de la matriz
+        matrix_str = column_header
+        for i, node in enumerate(node_list):
+            matrix_str += f"{node}: ".ljust(10)  # Ancho fijo para el nombre del nodo
+            for j in range(len(edge_names)):
+                matrix_str += f"{incidence_matrix[i, j]}".ljust(max_edge_name_length + 5)  # Ancho máximo + 5 espacios de separación
+            matrix_str += "\n"  # Nueva línea después de cada fila
+
+        messagebox.showinfo("Matriz de Incidencia", matrix_str)
+
+
     def shortest_path(self, start_node, end_node):
         return nx.shortest_path(self.graph, start_node, end_node)
 
@@ -286,6 +330,10 @@ if __name__ == "__main__":
     # Botón para mostrar la matriz de adyacencia
     adjacency_matrix_button = tk.Button(button_frame, text="Matriz de Adyacencia", command=app.show_adjacency_matrix)
     adjacency_matrix_button.pack(side=tk.LEFT, padx=5, pady=5)
+
+    # Botón para mostrar la matriz de incidencia
+    incidence_matrix_button = tk.Button(button_frame, text="Matriz de Incidencia", command=app.show_incidence_matrix)
+    incidence_matrix_button.pack(side=tk.LEFT, padx=5, pady=5)
 
     button_shortest_path = tk.Button(button_frame, text="Camino más corto", command=app.show_shortest_path)
     button_shortest_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
