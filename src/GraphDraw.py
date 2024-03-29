@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import messagebox, simpledialog
 import networkx as nx
 import numpy as np
-import pandas as pd
+
 
 class GraphDrawerApp:
     def __init__(self, root):
