@@ -17,7 +17,16 @@ class GraphDrawerApp:
         self.graph = nx.Graph()
         self.showing_shortest_path = False
         self.showing_eulerian_path = False  # Atributo para indicar si se está mostrando un camino euleriano
-
+    def find_faces(self, graph):
+        faces = []
+        for component in nx.connected_components(graph):
+            subgraph = graph.subgraph(component)
+            cycle_basis = nx.cycle_basis(subgraph)
+            for cycle in cycle_basis:
+                face = cycle.copy()
+                face.append(cycle[0])
+                faces.append(face)
+        return faces
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
         node_name = simpledialog.askstring("Nombre del nodo", "Ingrese el nombre del nodo:")
@@ -45,6 +54,8 @@ class GraphDrawerApp:
             self.restore_highlighted_nodes()
             # Reiniciar el nodo seleccionado
             self.selected_node = None
+        else:
+            messagebox.showwarning("Nodo no seleccionado", "Por favor, seleccione un nodo haciendo clic izquierdo antes de crear una arista.")
 
     def create_edge_ctrl(self, event):
         # Esta función se ejecuta cuando se mantiene presionada la tecla Ctrl y se hace clic izquierdo
@@ -164,13 +175,24 @@ class GraphDrawerApp:
 
 
 
-    # Funcion para limpiar el lienzo
-    def clear_canvas(self):
-        # Limpia el lienzo
-        self.canvas.delete("all")
-        self.nodes = {}
-        self.edges = []
-        self.graph.clear()
+    def show_regions(self):
+        if nx.algorithms.planarity.is_planar(self.graph):
+            faces = self.find_faces(self.graph)
+            num_regions = len(faces) + 1  # El número de caras es igual a la cantidad de faces más 1
+
+            # Dibujar las regiones (caras) del grafo con color azul
+            for face in faces:
+                region_coordinates = [(self.nodes[node][1], self.nodes[node][2]) for node in face]
+                self.canvas.create_polygon(region_coordinates, fill="blue", outline="black")
+
+            # Mostrar el número de regiones en un mensaje informativo
+            messagebox.showinfo("Regiones del Grafo", f"El grafo tiene {num_regions} regiones.")
+
+            # Restaurar el lienzo a su estado original eliminando las regiones pintadas
+            self.update_canvas()
+        else:
+            messagebox.showinfo("Regiones del Grafo", "El grafo no es planar.")
+
 
     # Funcion para borrar un nodo seleccionado
     def delete_selected_node(self):
@@ -186,7 +208,14 @@ class GraphDrawerApp:
         else:
             messagebox.showwarning("Seleccione un nodo","Para eliminar un nodo asegurese de seleccionarlo")
 
-
+    # Funcion para limpiar el lienzo
+    def clear_canvas(self):
+        # Limpia el lienzo
+        self.canvas.delete("all")
+        self.nodes = {}
+        self.edges = []
+        self.graph.clear()
+        
     def update_canvas(self):
         # Limpiar el lienzo
         self.canvas.delete("all")
@@ -238,7 +267,10 @@ if __name__ == "__main__":
     
     button_eulerian_path = tk.Button(button_frame, text="Camino de Euler", command=app.show_eulerian_path)
     button_eulerian_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
-    
+
+    button_regions = tk.Button(button_frame, text="Ver regiones", command=app.show_regions)
+    button_regions.pack(side=tk.LEFT, padx=5, pady=5)  
+
     # Botón para limpiar el lienzo
     clear_button = tk.Button(button_frame, text="Limpiar", command=app.clear_canvas)
     clear_button.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la derecha con un poco de espacio
