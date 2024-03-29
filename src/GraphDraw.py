@@ -83,7 +83,41 @@ class GraphDrawerApp:
 
     # Muestra informacion basica del grafo
     def show_graph_info(self):
-        messagebox.showinfo("Información del Grafo", f"Número de nodos: {len(self.nodes)}\nNúmero de aristas: {len(self.edges)}")
+        info_message = f"Número de nodos: {len(self.nodes)}\nNúmero de aristas: {len(self.edges)}\n"
+
+        if self.is_simple_graph():
+            info_message += "El grafo es un grafo simple\n"
+        elif self.is_multigraph():
+            info_message += "El grafo es un multigrafo\n"
+
+        if self.is_regular_graph():
+            info_message += "El grafo es regular\n"
+        else:
+            info_message += "El grafo no es regular\n"
+
+        if self.is_trivial_graph():
+            info_message += "El grafo es trivial\n"
+        else:
+            info_message += "El grafo no es trivial\n"
+
+        messagebox.showinfo("Información del Grafo", info_message)
+
+
+    def is_simple_graph(self):
+        return len(self.edges) == len(set(self.edges))
+
+    def is_multigraph(self):
+        return len(self.edges) != len(set(self.edges))
+
+    def is_regular_graph(self):
+        if len(self.nodes) == 0:
+            return False
+        degree_set = set(self.graph.degree(node) for node in self.graph.nodes)
+        return len(degree_set) == 1
+
+    def is_trivial_graph(self):
+        return len(self.nodes) == 1
+
 
     # Muestra los nodos del grafo denotando correctamnete
     def show_graph_nodes(self):
