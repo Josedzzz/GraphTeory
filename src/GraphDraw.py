@@ -16,6 +16,7 @@ class GraphDrawerApp:
         self.selected_node = None
         self.highlighted_nodes = []
         self.graph = nx.Graph()
+        self.graph_edges = {}  # Diccionario para mapear pares de nodos a las aristas dibujadas
 
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
@@ -48,6 +49,7 @@ class GraphDrawerApp:
                         edge = self.canvas.create_line(self.nodes[self.selected_node][1], self.nodes[self.selected_node][2], node_x, node_y, fill="black")
                         self.edges.append((self.selected_node, node_name))
                         self.graph.add_edge(self.selected_node, node_name)
+                        self.graph_edges[(self.selected_node, node_name)] = edge  # Agregar la arista al diccionario
                         # Restaurar el color de los nodos destacados
                         self.restore_highlighted_nodes()
                         # Reiniciar el nodo seleccionado
@@ -58,6 +60,7 @@ class GraphDrawerApp:
                 # Restaurar el color del nodo seleccionado a azul original
                 self.canvas.itemconfig(self.nodes[self.selected_node][0], fill="#14D0E8")
                 self.selected_node = None
+
     
     def restore_highlighted_nodes(self):
         # Restaurar el color de los nodos destacados a azul original
@@ -230,8 +233,47 @@ class GraphDrawerApp:
     def show_shortest_path(self):
         start_node = simpledialog.askstring("Nodo de inicio", "Ingrese el nombre del nodo de inicio:")
         end_node = simpledialog.askstring("Nodo de fin", "Ingrese el nombre del nodo de fin:")
-        shortest_path = self.shortest_path(start_node, end_node)
-        messagebox.showinfo("Camino más corto", f"El camino más corto entre los nodos {start_node} y {end_node} es: {shortest_path}")
+        shortest_path_nodes = self.shortest_path(start_node, end_node)
+        
+        if shortest_path_nodes:
+            # Pintar las aristas del camino más corto de rojo
+            self.highlight_shortest_path(shortest_path_nodes)
+            
+            # Mostrar el messagebox con el camino más corto
+            shortest_path_str = ' -> '.join(shortest_path_nodes)
+            messagebox.showinfo("Camino más corto", f"El camino más corto entre los nodos {start_node} y {end_node} es: {shortest_path_str}")
+            
+            # Restaurar el color original de las aristas después de cerrar el messagebox
+            self.restore_edge_colors()
+        else:
+            messagebox.showinfo("Camino más corto", f"No hay camino entre los nodos {start_node} y {end_node}.")
+
+    def highlight_shortest_path(self, shortest_path_nodes):
+        for i in range(len(shortest_path_nodes) - 1):
+            node1 = shortest_path_nodes[i]
+            node2 = shortest_path_nodes[i + 1]
+            edge = (node1, node2) if self.graph.has_edge(node1, node2) else (node2, node1)
+            self.highlight_edge(edge,"red")
+
+    def highlight_edge(self, edge, color):
+        # edge es una tupla que representa una arista (nodo1, nodo2)
+        # color es el color con el que se quiere resaltar la arista
+        if edge in self.graph_edges:
+            self.canvas.itemconfig(self.graph_edges[edge], fill=color)
+        else:
+            # Si la arista no está en el diccionario, intentamos invertir los nodos en la tupla
+            reversed_edge = (edge[1], edge[0])
+            if reversed_edge in self.graph_edges:
+                self.canvas.itemconfig(self.graph_edges[reversed_edge], fill=color)
+            else:
+                # Si la arista no se encuentra, imprimir un mensaje de advertencia
+                print(f"La arista {edge} no se encontró en el diccionario de aristas.")
+
+
+    def restore_edge_colors(self):
+        for edge in self.edges:
+            self.canvas.itemconfig(self.graph_edges[edge], fill="black")
+
 
     # Función para verificar si el grafo tiene un camino de Euler
     def eulerian_path(self):
@@ -279,7 +321,13 @@ class GraphDrawerApp:
     # Funcion para borrar un nodo seleccionado
     def delete_selected_node(self):
         if self.selected_node is not None:
-            # Eliminar el nodo seleccionado y sus aristas
+            # Eliminar las aristas asociadas al nodo seleccionado del lienzo y del diccionario
+            edges_to_delete = [(n1, n2) for n1, n2 in self.edges if n1 == self.selected_node or n2 == self.selected_node]
+            for edge in edges_to_delete:
+                self.canvas.delete(self.graph_edges[edge])  # Eliminar la arista del lienzo
+                del self.graph_edges[edge]  # Eliminar la referencia de la arista del diccionario
+
+            # Eliminar el nodo seleccionado y sus aristas del grafo
             self.canvas.delete(self.nodes[self.selected_node][0])  # Eliminar la representación visual del nodo
             del self.nodes[self.selected_node]  # Eliminar el nodo del diccionario de nodos
             self.graph.remove_node(self.selected_node)  # Eliminar el nodo del grafo
@@ -287,6 +335,7 @@ class GraphDrawerApp:
             self.selected_node = None
             # Actualizar el lienzo
             self.update_canvas()
+
 
 
     # Actualiza el lienzo
