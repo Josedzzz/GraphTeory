@@ -16,6 +16,7 @@ class GraphDrawerApp:
         self.highlighted_nodes = []
         self.graph = nx.Graph()
         self.showing_shortest_path = False
+        self.showing_eulerian_path = False  # Atributo para indicar si se está mostrando un camino euleriano
 
     def create_node(self, event):
         # Pedir al usuario el nombre del nodo
@@ -185,7 +186,7 @@ class GraphDrawerApp:
         else:
             messagebox.showwarning("Seleccione un nodo","Para eliminar un nodo asegurese de seleccionarlo")
 
-    # Actualiza el lienzo
+
     def update_canvas(self):
         # Limpiar el lienzo
         self.canvas.delete("all")
@@ -203,13 +204,14 @@ class GraphDrawerApp:
                     self.canvas.create_line(x1, y1, x2, y2, fill="red", width=2)  # Cambia el color de la arista si está en el camino más corto
                 else:
                     self.canvas.create_line(x1, y1, x2, y2, fill="black")
-            elif self.showing_eulerian_path:
+            elif self.showing_eulerian_path and hasattr(self, 'eulerian_path_edges'):  # Verificar si eulerian_path_edges está definido
                 if (node1, node2) in self.eulerian_path_edges or (node2, node1) in self.eulerian_path_edges:
                     self.canvas.create_line(x1, y1, x2, y2, fill="yellow", width=2)  # Cambia el color de la arista si está en el camino euleriano
                 else:
                     self.canvas.create_line(x1, y1, x2, y2, fill="black")
             else:
                 self.canvas.create_line(x1, y1, x2, y2, fill="black")
+
 
 
 
