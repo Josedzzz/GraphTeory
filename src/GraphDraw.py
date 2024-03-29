@@ -8,7 +8,6 @@ class GraphDrawerApp:
         self.canvas = tk.Canvas(root, width=800, height=500, bg="white")
         self.canvas.pack(expand=True, fill="both")
         self.canvas.bind("<Button-1>", self.create_node)
-        self.canvas.bind("<Button-3>", self.create_edge)  # Botón derecho del mouse para crear aristas
         self.canvas.bind("<Control-Button-1>", self.create_edge_ctrl)  # Ctrl + clic izquierdo para crear aristas
         self.nodes = {}  # Utilizaremos un diccionario para almacenar los nodos con sus nombres como clave
         self.edges = []
@@ -29,20 +28,6 @@ class GraphDrawerApp:
                 self.canvas.create_text(x, y, text=node_name, fill="black", anchor="center")
             else:
                 messagebox.showwarning("Nombre duplicado", f"El nombre '{node_name}' ya está en uso. Por favor, ingrese un nombre diferente.")
-
-    def create_edge(self, event):
-        # Esta función se ejecuta cuando se hace clic derecho
-        if self.selected_node is not None:
-            # Obtener las coordenadas del nodo sobre el cual se hizo clic
-            x, y = event.x, event.y
-            # Crear la arista
-            edge = self.canvas.create_line(self.nodes[self.selected_node][1], self.nodes[self.selected_node][2], x, y, fill="black")
-            self.edges.append((self.selected_node, len(self.nodes) - 1))
-            self.graph.add_edge(self.selected_node, list(self.nodes.keys())[-1])  # El último nodo creado
-            # Restaurar el color de los nodos destacados
-            self.restore_highlighted_nodes()
-            # Reiniciar el nodo seleccionado
-            self.selected_node = None
 
     def create_edge_ctrl(self, event):
         # Esta función se ejecuta cuando se mantiene presionada la tecla Ctrl y se hace clic izquierdo
@@ -71,7 +56,7 @@ class GraphDrawerApp:
                 # Restaurar el color del nodo seleccionado a azul original
                 self.canvas.itemconfig(self.nodes[self.selected_node][0], fill="#14D0E8")
                 self.selected_node = None
-
+    
     def restore_highlighted_nodes(self):
         # Restaurar el color de los nodos destacados a azul original
         for node, _, _ in self.nodes.values():
