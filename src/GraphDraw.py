@@ -307,36 +307,26 @@ class GraphDrawerApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = GraphDrawerApp(root)
-    root.attributes('-zoomed', True)
+    root.state('zoomed')
 
-    # Crear un Frame para los botones
-    button_frame = tk.Frame(root)
-    button_frame.pack(side=tk.BOTTOM, fill=tk.X)  
+    button_frame = tk.Frame(root)  # Crear un Frame para los botones
+    button_frame.pack(side=tk.BOTTOM, fill=tk.X)  # Colocar el Frame en la parte inferior y que ocupe todo el ancho
+    
+    button_info = tk.Button(button_frame, text="Información del Grafo", command=app.show_graph_info)
+    button_info.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    button_nodes = tk.Button(button_frame, text="Nodos", command=app.show_graph_nodes)
+    button_nodes.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    button_edges = tk.Button(button_frame, text="Aristas", command=app.show_graph_edges)
+    button_edges.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
 
-    # Crear un Frame para los botones de arriba
-    top_button_frame = tk.Frame(root)
-    top_button_frame.pack(side=tk.TOP, fill=tk.X)  
-    
-    # Botón para mostrar información del grafo
-    button_info = tk.Button(top_button_frame, text="Información del Grafo", command=app.show_graph_info)
-    button_info.pack(side=tk.LEFT, padx=5, pady=5)  
-    
-    # Botón para mostrar el camino más corto
-    button_shortest_path = tk.Button(button_frame, text="Camino más corto", command=app.show_shortest_path)
-    button_shortest_path.pack(side=tk.RIGHT, padx=5, pady=5)  
-    
-    # Botón para mostrar el camino de Euler
-    button_eulerian_path = tk.Button(button_frame, text="Camino de Euler", command=app.show_eulerian_path)
-    button_eulerian_path.pack(side=tk.RIGHT, padx=5, pady=5)  
-    
-    # Botón para limpiar el lienzo
-    clear_button = tk.Button(top_button_frame, text="Limpiar", command=app.clear_canvas)
-    clear_button.pack(side=tk.RIGHT, padx=5, pady=5)  
-    
-    # Botón para eliminar un nodo
-    delete_button = tk.Button(top_button_frame, text="Eliminar Nodo", command=app.delete_selected_node)
-    delete_button.pack(side=tk.RIGHT, padx=5, pady=5)  
+    button_show_neighbors = tk.Button(button_frame, text="Vecinos", command=app.show_node_neighbors)
+    button_show_neighbors.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
 
+    button_show_degree = tk.Button(button_frame, text="Grado Nodo", command=app.show_node_degree)
+    button_show_degree.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+ 
     # Botón para mostrar la matriz de adyacencia
     adjacency_matrix_button = tk.Button(button_frame, text="Matriz de Adyacencia", command=app.show_adjacency_matrix)
     adjacency_matrix_button.pack(side=tk.LEFT, padx=5, pady=5)
@@ -345,21 +335,19 @@ if __name__ == "__main__":
     incidence_matrix_button = tk.Button(button_frame, text="Matriz de Incidencia", command=app.show_incidence_matrix)
     incidence_matrix_button.pack(side=tk.LEFT, padx=5, pady=5)
 
-    # Botón para mostrar los nodos del grafo
-    button_nodes = tk.Button(button_frame, text="Nodos", command=app.show_graph_nodes)
-    button_nodes.pack(side=tk.LEFT, padx=5, pady=5)  
+    button_shortest_path = tk.Button(button_frame, text="Camino más corto", command=app.show_shortest_path)
+    button_shortest_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
-    # Botón para mostrar las aristas del grafo
-    button_edges = tk.Button(button_frame, text="Aristas", command=app.show_graph_edges)
-    button_edges.pack(side=tk.LEFT, padx=5, pady=5)  
-
-    # Botón para mostrar los vecinos de un nodo
-    button_show_neighbors = tk.Button(button_frame, text="Vecinos", command=app.show_node_neighbors)
-    button_show_neighbors.pack(side=tk.LEFT, padx=5, pady=5)  
-
-    # Botón para mostrar el grado de un nodo
-    button_show_degree = tk.Button(button_frame, text="Grado Nodo", command=app.show_node_degree)
-    button_show_degree.pack(side=tk.LEFT, padx=5, pady=5)  
-
+    button_eulerian_path = tk.Button(button_frame, text="Camino de Euler", command=app.show_eulerian_path)
+    button_eulerian_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
+    
+    # Botón para limpiar el lienzo
+    clear_button = tk.Button(button_frame, text="Limpiar", command=app.clear_canvas)
+    clear_button.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la derecha con un poco de espacio
+    
+    # Botón para eliminar un nodo
+    delete_button = tk.Button(button_frame, text="Eliminar Nodo", command=app.delete_selected_node)
+    delete_button.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la derecha con un poco de espacio
+    
     root.mainloop()
     
