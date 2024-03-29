@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 import networkx as nx
+import numpy as np
 
 class GraphDrawerApp:
     def __init__(self, root):
@@ -148,6 +149,36 @@ class GraphDrawerApp:
             else:
                 messagebox.showwarning("Nodo no encontrado", f"No se encontró el nodo {node_name} en el grafo.")
 
+    def calculate_adjacency_matrix(self, power):
+        adjacency_matrix = nx.adjacency_matrix(self.graph).todense()
+        node_names = list(self.graph.nodes())
+        adjacency_matrix_power = np.linalg.matrix_power(adjacency_matrix, power)
+        return node_names, adjacency_matrix_power.tolist()
+
+    def show_adjacency_matrix(self):
+        if self.nodes:  # Verificar si hay nodos en el grafo
+            power = simpledialog.askinteger("Potencia", "Ingrese la potencia para calcular la matriz de adyacencia a la k:")
+            if power is not None:
+                node_names, adjacency_matrix = self.calculate_adjacency_matrix(power)
+                # Calcular la longitud máxima de los nombres de columna
+                max_name_length = max(len(name) for name in node_names)
+                
+                # Construir la cadena de la matriz de adyacencia
+                matrix_str = " " * (max_name_length + 2)  # Espacio para alinear correctamente las filas
+                for name in node_names:
+                    matrix_str += name.ljust(max_name_length) + " "
+                matrix_str += "\n"
+                
+                for i, row in enumerate(adjacency_matrix):
+                    matrix_str += node_names[i].ljust(max_name_length) + " "  # Alinear correctamente las filas
+                    for cell in row:
+                        matrix_str += str(cell).ljust(max_name_length) + " "
+                    matrix_str += "\n"
+                
+                messagebox.showinfo("Matriz de Adyacencia", f"Matriz de Adyacencia a la {power}:\n{matrix_str}")
+        else:
+            messagebox.showwarning("Grafo Vacío", "No hay nodos en el grafo. Cree nodos antes de calcular la matriz de adyacencia.")
+
 
     def shortest_path(self, start_node, end_node):
         return nx.shortest_path(self.graph, start_node, end_node)
@@ -251,7 +282,11 @@ if __name__ == "__main__":
 
     button_show_degree = tk.Button(button_frame, text="Grado Nodo", command=app.show_node_degree)
     button_show_degree.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
-    
+ 
+    # Botón para mostrar la matriz de adyacencia
+    adjacency_matrix_button = tk.Button(button_frame, text="Matriz de Adyacencia", command=app.show_adjacency_matrix)
+    adjacency_matrix_button.pack(side=tk.LEFT, padx=5, pady=5)
+
     button_shortest_path = tk.Button(button_frame, text="Camino más corto", command=app.show_shortest_path)
     button_shortest_path.pack(side=tk.LEFT, padx=5, pady=5)  # Acomodar el botón a la izquierda con un poco de espacio
     
