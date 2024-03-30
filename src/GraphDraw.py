@@ -378,7 +378,7 @@ class GraphDrawerApp:
 if __name__ == "__main__":
     root = tk.Tk()
     app = GraphDrawerApp(root)
-    root.attributes('-zoomed', True)
+    root.state('zoomed')
 
     # Crear un Frame para los botones
     button_frame = tk.Frame(root)
