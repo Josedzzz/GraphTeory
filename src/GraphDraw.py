@@ -18,11 +18,12 @@ class GraphDrawerApp:
         self.graph = nx.Graph()
         self.graph_edges = {}  # Diccionario para mapear pares de nodos a las aristas dibujadas
 
+
+    # Crea graficamente un nodo
     def create_node(self, event):
-        # Pedir al usuario el nombre del nodo
         node_name = simpledialog.askstring("Nombre del nodo", "Ingrese el nombre del nodo:")
         if node_name is not None:
-            if node_name not in self.nodes:  # Verificar que el nombre no se repita
+            if node_name not in self.nodes:  
                 x, y = event.x, event.y
                 node = self.canvas.create_oval(x-10, y-10, x+10, y+10, fill="#14D0E8")
                 self.nodes[node_name] = (node, x, y)  # Guardar el nodo con su nombre y coordenadas
@@ -32,8 +33,9 @@ class GraphDrawerApp:
             else:
                 messagebox.showwarning("Nombre duplicado", f"El nombre '{node_name}' ya está en uso. Por favor, ingrese un nombre diferente.")
 
+
+    # Crea graficamente una arista
     def create_edge_ctrl(self, event):
-        # Esta función se ejecuta cuando se mantiene presionada la tecla Ctrl y se hace clic izquierdo
         for node_name, (node, node_x, node_y) in self.nodes.items():
             # Comprobar si el clic ocurrió dentro de un nodo
             if abs(event.x - node_x) <= 10 and abs(event.y - node_y) <= 10:
@@ -61,9 +63,9 @@ class GraphDrawerApp:
                 self.canvas.itemconfig(self.nodes[self.selected_node][0], fill="#14D0E8")
                 self.selected_node = None
 
-    
+
+    # Restaurar el color de los nodos destacados a azul original
     def restore_highlighted_nodes(self):
-        # Restaurar el color de los nodos destacados a azul original
         for node, _, _ in self.nodes.values():
             self.canvas.itemconfig(node, fill="#14D0E8")
         self.highlighted_nodes = []
@@ -93,23 +95,27 @@ class GraphDrawerApp:
         messagebox.showinfo("Información del Grafo", info_message)
 
 
+    # Retorna el valor booleano de si el grafo es simple o no
     def is_simple_graph(self):
         return len(self.edges) == len(set(self.edges))
 
+    # Retorna el valor booleano de si el grafo es un multigrafo o no
     def is_multigraph(self):
         return len(self.edges) != len(set(self.edges))
 
+    # Retorna el valor booleano de si el grafo es uno regular o no
     def is_regular_graph(self):
         if len(self.nodes) == 0:
             return False
         degree_set = set(self.graph.degree(node) for node in self.graph.nodes)
         return len(degree_set) == 1
 
+    # Retorna el valor booleano de si el grafo es trivial o no
     def is_trivial_graph(self):
         return len(self.nodes) == 1
 
 
-    # Muestra los nodos del grafo denotando correctamnete
+    # Muestra los nodos del grafo 
     def show_graph_nodes(self):
         if self.nodes:
             node_list = ", ".join(self.nodes.keys())
@@ -117,7 +123,8 @@ class GraphDrawerApp:
         else:
             messagebox.showinfo("Nodos del Grafo", "El grafo no tiene nodos.")
 
-    # Muestra las aristas del grafo denotando correctamente
+
+    # Muestra las aristas del grafo 
     def show_graph_edges(self):
         if self.edges:
             edge_list = ", ".join([f"({edge[0]}, {edge[1]})" for edge in self.edges])
@@ -153,12 +160,16 @@ class GraphDrawerApp:
             else:
                 messagebox.showwarning("Nodo no encontrado", f"No se encontró el nodo {node_name} en el grafo.")
 
+
+    # Calcula la matriz de adyacencia
     def calculate_adjacency_matrix(self, power):
         adjacency_matrix = nx.adjacency_matrix(self.graph).todense()
         node_names = list(self.graph.nodes())
         adjacency_matrix_power = np.linalg.matrix_power(adjacency_matrix, power)
         return node_names, adjacency_matrix_power.tolist()
 
+
+    # Muestra la matriz de adyacencia
     def show_adjacency_matrix(self):
         if self.nodes:  # Verificar si hay nodos en el grafo
             power = simpledialog.askinteger("Potencia", "Ingrese la potencia para calcular la matriz de adyacencia a la k:")
@@ -184,6 +195,7 @@ class GraphDrawerApp:
             messagebox.showwarning("Grafo Vacío", "No hay nodos en el grafo. Cree nodos antes de calcular la matriz de adyacencia.")
 
 
+    # Calcula la matriz de incidencia
     def calculate_incidence_matrix(self):
         # Crear una lista de nodos y una lista de aristas
         node_list = list(self.nodes.keys())
@@ -204,6 +216,7 @@ class GraphDrawerApp:
         return incidence_matrix, node_list, edge_names
     
 
+    # Imprime la matriz de incidencia
     def show_incidence_matrix(self):
         incidence_matrix, node_list, edge_names = self.calculate_incidence_matrix()
 
@@ -214,7 +227,7 @@ class GraphDrawerApp:
         column_header = "Node".ljust(10)  # Ancho fijo para el nombre del nodo
         for edge_name in edge_names:
             column_header += edge_name.ljust(max_edge_name_length + 5)  # Ancho máximo + 5 espacios de separación
-        column_header += "\n"  # Nueva línea después de los nombres de las aristas
+        column_header += "\n"  # Nueva linea despues de los nombres de las aristas
 
         # Creamos la cadena para el contenido de la matriz
         matrix_str = column_header
@@ -227,27 +240,32 @@ class GraphDrawerApp:
         messagebox.showinfo("Matriz de Incidencia", matrix_str)
 
 
+    # Retorna el camnino mas corto entre dos nodos
     def shortest_path(self, start_node, end_node):
         return nx.shortest_path(self.graph, start_node, end_node)
 
+
+    # Muestra el camino mas corto entre los nodos
     def show_shortest_path(self):
         start_node = simpledialog.askstring("Nodo de inicio", "Ingrese el nombre del nodo de inicio:")
         end_node = simpledialog.askstring("Nodo de fin", "Ingrese el nombre del nodo de fin:")
         shortest_path_nodes = self.shortest_path(start_node, end_node)
         
         if shortest_path_nodes:
-            # Pintar las aristas del camino más corto de rojo
+            # Pintar las aristas del camino mas corto de rojo
             self.highlight_shortest_path(shortest_path_nodes)
             
-            # Mostrar el messagebox con el camino más corto
+            # Mostrar el messagebox con el camino mas corto
             shortest_path_str = ' -> '.join(shortest_path_nodes)
             messagebox.showinfo("Camino más corto", f"El camino más corto entre los nodos {start_node} y {end_node} es: {shortest_path_str}")
             
-            # Restaurar el color original de las aristas después de cerrar el messagebox
+            # Restaurar el color original de las aristas despues de cerrar el messagebox
             self.restore_edge_colors()
         else:
             messagebox.showinfo("Camino más corto", f"No hay camino entre los nodos {start_node} y {end_node}.")
 
+
+    # Pinta las aristas mostrando el camino mas corto
     def highlight_shortest_path(self, shortest_path_nodes):
         for i in range(len(shortest_path_nodes) - 1):
             node1 = shortest_path_nodes[i]
@@ -255,13 +273,15 @@ class GraphDrawerApp:
             edge = (node1, node2) if self.graph.has_edge(node1, node2) else (node2, node1)
             self.highlight_edge(edge,"red")
 
+
+    # Pinta una arista especifica de rojo
     def highlight_edge(self, edge, color):
         # edge es una tupla que representa una arista (nodo1, nodo2)
         # color es el color con el que se quiere resaltar la arista
         if edge in self.graph_edges:
             self.canvas.itemconfig(self.graph_edges[edge], fill=color)
         else:
-            # Si la arista no está en el diccionario, intentamos invertir los nodos en la tupla
+            # Si la arista no este en el diccionario, intentamos invertir los nodos en la tupla
             reversed_edge = (edge[1], edge[0])
             if reversed_edge in self.graph_edges:
                 self.canvas.itemconfig(self.graph_edges[reversed_edge], fill=color)
@@ -270,12 +290,13 @@ class GraphDrawerApp:
                 print(f"La arista {edge} no se encontró en el diccionario de aristas.")
 
 
+    # Restaura las aristas a su color original
     def restore_edge_colors(self):
         for edge in self.edges:
             self.canvas.itemconfig(self.graph_edges[edge], fill="black")
 
 
-    # Función para verificar si el grafo tiene un camino de Euler
+    # verifica si el grafo tiene un camino de Euler
     def eulerian_path(self):
         odd_degree_nodes = [node for node, deg in self.graph.degree() if deg % 2 == 1]
         if len(odd_degree_nodes) != 0 and len(odd_degree_nodes) != 2:
@@ -301,7 +322,7 @@ class GraphDrawerApp:
             return False, None  # No hay camino de Euler
 
 
-    # Función para mostrar el camino de Euler si existe
+    # mostrar el camino de Euler si existe
     def show_eulerian_path(self):
         is_eulerian, euler_path = self.eulerian_path()
         if is_eulerian:
@@ -310,15 +331,16 @@ class GraphDrawerApp:
         else:
             messagebox.showinfo("Camino de Euler", "El grafo no tiene un camino de Euler.")
 
-    # Funcion para limpiar el lienzo
+
+    # Limpiar el lienzo
     def clear_canvas(self):
-        # Limpia el lienzo
         self.canvas.delete("all")
         self.nodes = {}
         self.edges = []
         self.graph.clear()
 
-    # Funcion para borrar un nodo seleccionado
+
+    # Borrar un nodo seleccionado
     def delete_selected_node(self):
         if self.selected_node is not None:
             # Eliminar las aristas asociadas al nodo seleccionado del lienzo y del diccionario
@@ -337,7 +359,6 @@ class GraphDrawerApp:
             self.update_canvas()
 
 
-
     # Actualiza el lienzo
     def update_canvas(self):
         # Limpiar el lienzo
@@ -352,6 +373,7 @@ class GraphDrawerApp:
             x1, y1 = self.nodes[node1][1], self.nodes[node1][2]
             x2, y2 = self.nodes[node2][1], self.nodes[node2][2]
             self.canvas.create_line(x1, y1, x2, y2, fill="black")
+            
 
 if __name__ == "__main__":
     root = tk.Tk()
